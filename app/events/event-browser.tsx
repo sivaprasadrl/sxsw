@@ -15,6 +15,7 @@ interface SxswEvent {
   badge: string;
   source: string;
   categories: string[];
+  locationAddress?: string;
 }
 
 interface Category {
@@ -447,9 +448,15 @@ function EventRow({
               {event.time}
             </span>
             {event.location && (
-              <span className="font-body text-[10px] text-nb-black/40 truncate">
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.locationAddress || event.location)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="font-body text-[10px] text-nb-black/40 truncate hover:text-nb-orange transition-colors duration-150 underline decoration-nb-black/20 hover:decoration-nb-orange"
+              >
                 {event.location}
-              </span>
+              </a>
             )}
           </div>
           <span className="font-heading font-black text-xs md:text-sm uppercase leading-snug block">
@@ -464,9 +471,15 @@ function EventRow({
 
         {/* Location — desktop only */}
         <div className="hidden lg:flex items-start">
-          <span className="font-body text-xs text-nb-black/60 truncate">
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.locationAddress || event.location)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="font-body text-xs text-nb-black/60 truncate hover:text-nb-orange transition-colors duration-150 underline decoration-nb-black/20 hover:decoration-nb-orange"
+          >
             {event.location}
-          </span>
+          </a>
         </div>
       </div>
 
@@ -480,9 +493,15 @@ function EventRow({
           <div className="max-w-3xl space-y-3 md:space-y-4 ml-0 lg:ml-[204px]">
             {/* Meta row */}
             <div className="flex flex-wrap gap-1.5 md:gap-2">
-              <span className="inline-block font-heading font-black text-[9px] md:text-[10px] uppercase px-2 py-1 bg-nb-white border-[2px] border-nb-black shadow-[2px_2px_0px_#000]">
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.locationAddress || event.location || "TBA")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-block font-heading font-black text-[9px] md:text-[10px] uppercase px-2 py-1 bg-nb-white border-[2px] border-nb-black shadow-[2px_2px_0px_#000] hover:bg-nb-orange hover:text-nb-white transition-colors duration-150"
+              >
                 📍 {event.location || "TBA"}
-              </span>
+              </a>
               <span className="inline-block font-heading font-black text-[9px] md:text-[10px] uppercase px-2 py-1 bg-nb-white border-[2px] border-nb-black shadow-[2px_2px_0px_#000]">
                 🕐 {event.time}
               </span>

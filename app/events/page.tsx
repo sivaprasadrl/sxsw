@@ -13,6 +13,7 @@ interface SxswEvent {
   badge: string;
   source: string;
   categories: string[];
+  locationAddress?: string;
 }
 
 function buildCategoryMap(events: SxswEvent[]) {
