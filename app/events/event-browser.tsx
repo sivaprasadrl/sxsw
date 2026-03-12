@@ -510,6 +510,27 @@ function EventRow({
               </span>
             </div>
 
+            {/* Embedded Map */}
+            {(event.locationAddress || event.location) && (
+              <div className="border-[3px] border-nb-black shadow-[4px_4px_0px_#000] overflow-hidden">
+                <iframe
+                  src={`https://www.google.com/maps?q=${encodeURIComponent(event.locationAddress || event.location)}&output=embed`}
+                  width="100%"
+                  height="200"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title={`Map: ${event.location}`}
+                />
+                <div className="bg-nb-white px-3 py-1.5 border-t-[2px] border-nb-black">
+                  <span className="font-body text-[11px] text-nb-black/60">
+                    {event.locationAddress || event.location}
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* Description */}
             {event.description && (
               <p className="font-body text-sm text-nb-black/80 leading-relaxed">
