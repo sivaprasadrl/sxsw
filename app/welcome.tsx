@@ -184,7 +184,7 @@ export function WelcomePage({
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {categories.map((cat) => {
               const isSelected = selectedCategories.has(cat.name);
               const bgColor = CATEGORY_COLORS[cat.name] || "bg-nb-white";
@@ -205,12 +205,12 @@ export function WelcomePage({
                   >
                     {isSelected ? "✓" : ""}
                   </span>
-                  <span className="flex-1 min-w-0">
-                    <span className="font-heading font-black text-sm uppercase block truncate">
+                  <span className="flex-1">
+                    <span className="font-heading font-black text-sm uppercase block">
                       {cat.name}
                     </span>
                   </span>
-                  <span className="font-heading font-black text-xs bg-nb-black text-nb-white px-2 py-0.5 shrink-0">
+                  <span className="font-heading font-black text-xs bg-nb-black text-nb-white px-2 py-0.5 shrink-0 ml-2">
                     {cat.count}
                   </span>
                 </button>
