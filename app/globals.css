@@ -1,26 +1,51 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-nb-black: #000000;
+  --color-nb-white: #FFFFFF;
+  --color-nb-orange: #FF5733;
+  --color-nb-orange-hover: #d64b2b;
+  --color-nb-yellow: #FDFD96;
+  --color-nb-yellow-hover: #fcfc7e;
+  --color-nb-sky: #B9E2F8;
+  --color-nb-sky-hover: #91bed6;
+  --color-nb-green: #40D39C;
+  --color-nb-green-light: #92FCA2;
+  --color-nb-violet: #BC98CB;
+  --color-nb-violet-hover: #b482c9;
+  --color-nb-pale-red: #FFC5C8;
+  --color-nb-pale-cyan: #B9E7DE;
+  --color-nb-cream: #FFF8E7;
+  --color-nb-bg: #F5F0E8;
+  --font-heading: var(--font-lexend-mega);
+  --font-body: var(--font-public-sans);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: #F5F0E8;
+  --foreground: #000000;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* NeoBrutalism transition easing */
+* {
+  transition-timing-function: cubic-bezier(0.77, 0, 0.18, 1);
+}
+
+/* Custom scrollbar - brutalist */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-nb-cream);
+  border-left: 3px solid #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #000;
 }
