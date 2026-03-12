@@ -27,18 +27,17 @@ function getUniqueData(events: SxswEvent[]) {
     .sort((a, b) => b[1] - a[1])
     .map(([name, count]) => ({ name, count }));
   const dates = [...dateSet].sort();
-  return { categories, dates, totalEvents: events.length };
+  return { categories, dates };
 }
 
 export default function Home() {
   const events = eventsData as SxswEvent[];
-  const { categories, dates, totalEvents } = getUniqueData(events);
+  const { categories, dates } = getUniqueData(events);
 
   return (
     <WelcomePage
       categories={categories}
       dates={dates}
-      totalEvents={totalEvents}
     />
   );
 }

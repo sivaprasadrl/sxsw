@@ -43,11 +43,9 @@ function formatDateLabel(dateStr: string) {
 export function WelcomePage({
   categories,
   dates,
-  totalEvents,
 }: {
   categories: Category[];
   dates: string[];
-  totalEvents: number;
 }) {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -98,8 +96,20 @@ export function WelcomePage({
             <span className="text-nb-white">2026</span>
           </h1>
           <p className="font-body text-lg md:text-xl text-nb-black/80 max-w-xl font-medium">
-            {totalEvents} sessions across tech, design, AI, and more.
+            Sessions across tech, design, AI, and more.
             Pick your dates and interests to build your schedule.
+          </p>
+          <p className="font-body text-sm text-nb-black/60 max-w-xl mt-4">
+            This is not an official SXSW website. It is a community-built tool designed to help attendees discover and plan sessions that match their interests.
+            Visit the official site at{" "}
+            <a
+              href="https://www.sxsw.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline font-bold text-nb-black/80 hover:text-nb-white transition-colors duration-150"
+            >
+              sxsw.com
+            </a>.
           </p>
         </div>
       </div>
@@ -234,7 +244,6 @@ export function WelcomePage({
             SXSW 2026 Sessions Explorer
           </span>
           <span className="font-body text-sm text-nb-white/50">
-            Data scraped from schedule.sxsw.com
           </span>
         </div>
       </footer>

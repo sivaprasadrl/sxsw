@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -93,6 +93,30 @@ export function EventBrowser({
   const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(288); // default w-72
+  const sidebarDragging = useRef(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!sidebarDragging.current) return;
+      const newWidth = Math.max(200, Math.min(500, e.clientX));
+      setSidebarWidth(newWidth);
+    };
+    const handleMouseUp = () => {
+      if (sidebarDragging.current) {
+        sidebarDragging.current = false;
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+      }
+    };
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
 
   // Compute global min/max event times
   const { globalMin, globalMax } = useMemo(() => {
@@ -216,7 +240,7 @@ export function EventBrowser({
                 {isSelected ? "✓" : ""}
               </span>
               <span className="flex-1 min-w-0">
-                <span className="font-heading font-black text-xs uppercase block truncate">
+                <span className="font-heading font-black text-xs uppercase block">
                   {cat.name}
                 </span>
               </span>
@@ -278,14 +302,29 @@ export function EventBrowser({
 
         {/* Sidebar — fixed on mobile, static on desktop */}
         <aside
+          ref={sidebarRef}
           className={`
             fixed inset-y-0 left-0 z-50 w-72 bg-nb-cream border-r-[3.5px] border-nb-black overflow-y-auto transition-transform duration-200
             lg:static lg:shrink-0 lg:translate-x-0 lg:z-auto
             ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
           `}
+          style={{ width: sidebarWidth }}
+
         >
           {sidebarContent}
         </aside>
+        {/* Resize handle — desktop only */}
+        <div
+          onMouseDown={(e) => {
+            e.preventDefault();
+            sidebarDragging.current = true;
+            document.body.style.cursor = "col-resize";
+            document.body.style.userSelect = "none";
+          }}
+          className="hidden lg:flex items-center justify-center w-2 cursor-col-resize bg-nb-black/5 hover:bg-nb-orange/30 active:bg-nb-orange/50 transition-colors duration-150 shrink-0 group"
+        >
+          <div className="w-[3px] h-8 bg-nb-black/20 group-hover:bg-nb-orange rounded-full" />
+        </div>
 
         {/* Main content */}
         <main className="flex-1 flex flex-col overflow-hidden min-w-0">
