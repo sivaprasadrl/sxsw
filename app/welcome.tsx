@@ -239,7 +239,7 @@ export function WelcomePage({
 
       {/* Footer */}
       <footer className="border-t-[3.5px] border-nb-black bg-nb-black text-nb-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex flex-col sm:flex-row items-center sm:justify-between gap-2 sm:gap-0">
           <span className="font-heading font-black text-xs sm:text-sm uppercase">
             SXSW 2026 Sessions Explorer
           </span>
