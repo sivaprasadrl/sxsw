@@ -171,10 +171,25 @@ export function EventBrowser({
     });
   };
 
+  const isSearching = search.trim().length > 0;
+
   const filtered = useMemo(() => {
-    let result = events.filter((e) =>
-      e.categories.some((c) => selectedCategories.has(c))
-    );
+    let result: SxswEvent[];
+    if (isSearching) {
+      // Search across all events, ignoring category filter
+      const q = search.toLowerCase();
+      result = events.filter(
+        (e) =>
+          e.title.toLowerCase().includes(q) ||
+          e.description.toLowerCase().includes(q) ||
+          e.location.toLowerCase().includes(q) ||
+          e.tags.some((t) => t.toLowerCase().includes(q))
+      );
+    } else {
+      result = events.filter((e) =>
+        e.categories.some((c) => selectedCategories.has(c))
+      );
+    }
     if (showBookmarksOnly) {
       result = result.filter((e) => bookmarks.has(e.id));
     }
@@ -188,23 +203,13 @@ export function EventBrowser({
         return eventStart >= timeRange[0] && eventStart <= timeRange[1];
       });
     }
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (e) =>
-          e.title.toLowerCase().includes(q) ||
-          e.description.toLowerCase().includes(q) ||
-          e.location.toLowerCase().includes(q) ||
-          e.tags.some((t) => t.toLowerCase().includes(q))
-      );
-    }
     result.sort((a, b) => {
       const d = a.date.localeCompare(b.date);
       if (d !== 0) return d;
       return a.time.localeCompare(b.time);
     });
     return result;
-  }, [events, selectedCategories, filterDate, timeRange, globalMin, globalMax, search, showBookmarksOnly, bookmarks]);
+  }, [events, selectedCategories, filterDate, timeRange, globalMin, globalMax, search, isSearching, showBookmarksOnly, bookmarks]);
 
   // Group by date
   const grouped = useMemo(() => {
@@ -284,8 +289,8 @@ export function EventBrowser({
     <div className="flex flex-col h-screen bg-nb-bg">
       {/* Header */}
       <header className="shrink-0 border-b-[3.5px] border-nb-black bg-nb-orange">
-        <div className="flex items-center justify-between px-4 md:px-6 py-3">
-          <div className="flex items-center gap-3 md:gap-4">
+        <div className="flex items-center justify-between px-4 md:px-6 py-3 gap-3">
+          <div className="flex items-center gap-3 md:gap-4 shrink-0">
             <Link
               href="/"
               className="font-heading font-black text-xl md:text-2xl text-nb-black uppercase hover:text-nb-white transition-colors duration-150"
@@ -302,16 +307,37 @@ export function EventBrowser({
             <span className="font-heading font-black text-xs uppercase tracking-wider text-nb-black/70 hidden sm:inline">
               Sessions
             </span>
-          </div>
-          <div className="flex items-center gap-3">
+
+            {/* Search bar */}
+            <div className="relative w-48 md:w-64 ml-3">
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="SEARCH EVENTS..."
+                className="w-full bg-nb-white border-[2.5px] border-nb-black shadow-[3px_3px_0px_#000] px-3 py-1.5 pr-8 font-heading font-black text-xs uppercase placeholder:text-nb-black/30 focus:shadow-[1.5px_1.5px_0px_#000] focus:translate-x-[1.5px] focus:translate-y-[1.5px] focus:outline-none transition-all duration-150"
+              />
+              {isSearching && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 font-heading font-black text-xs text-nb-black/40 hover:text-nb-black cursor-pointer"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+          <div className="flex items-center gap-3 shrink-0">
             <a href="https://sw3ll.ai" target="_blank" rel="noopener noreferrer" className="font-body text-[10px] text-nb-black/50 hover:text-nb-black transition-colors duration-150 hidden sm:inline">made by sw3ll</a>
             {/* Mobile: category toggle button */}
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden font-heading font-black text-xs uppercase px-3 py-1.5 bg-nb-black text-nb-white border-[2.5px] border-nb-black shadow-[3px_3px_0px_#FDFD96] hover:shadow-[1.5px_1.5px_0px_#FDFD96] hover:translate-x-[1.5px] hover:translate-y-[1.5px] transition-all duration-150 cursor-pointer"
-            >
-              Categories ({selectedCategories.size})
-            </button>
+            {!isSearching && (
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden font-heading font-black text-xs uppercase px-3 py-1.5 bg-nb-black text-nb-white border-[2.5px] border-nb-black shadow-[3px_3px_0px_#FDFD96] hover:shadow-[1.5px_1.5px_0px_#FDFD96] hover:translate-x-[1.5px] hover:translate-y-[1.5px] transition-all duration-150 cursor-pointer"
+              >
+                Categories ({selectedCategories.size})
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -319,38 +345,41 @@ export function EventBrowser({
       {/* Split view */}
       <div className="flex flex-1 overflow-hidden relative">
         {/* Mobile sidebar overlay */}
-        {sidebarOpen && (
+        {sidebarOpen && !isSearching && (
           <div
             className="fixed inset-0 bg-nb-black/50 z-40 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
 
-        {/* Sidebar — fixed on mobile, static on desktop */}
-        <aside
-          ref={sidebarRef}
-          className={`
-            fixed inset-y-0 left-0 z-50 w-72 bg-nb-cream border-r-[3.5px] border-nb-black overflow-y-auto transition-transform duration-200
-            lg:static lg:shrink-0 lg:translate-x-0 lg:z-auto
-            ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-          `}
-          style={{ width: sidebarWidth }}
-
-        >
-          {sidebarContent}
-        </aside>
-        {/* Resize handle — desktop only */}
-        <div
-          onMouseDown={(e) => {
-            e.preventDefault();
-            sidebarDragging.current = true;
-            document.body.style.cursor = "col-resize";
-            document.body.style.userSelect = "none";
-          }}
-          className="hidden lg:flex items-center justify-center w-2 cursor-col-resize bg-nb-black/5 hover:bg-nb-orange/30 active:bg-nb-orange/50 transition-colors duration-150 shrink-0 group"
-        >
-          <div className="w-[3px] h-8 bg-nb-black/20 group-hover:bg-nb-orange rounded-full" />
-        </div>
+        {/* Sidebar — hidden in search mode */}
+        {!isSearching && (
+          <>
+            <aside
+              ref={sidebarRef}
+              className={`
+                fixed inset-y-0 left-0 z-50 w-72 bg-nb-cream border-r-[3.5px] border-nb-black overflow-y-auto transition-transform duration-200
+                lg:static lg:shrink-0 lg:translate-x-0 lg:z-auto
+                ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+              `}
+              style={{ width: sidebarWidth }}
+            >
+              {sidebarContent}
+            </aside>
+            {/* Resize handle — desktop only */}
+            <div
+              onMouseDown={(e) => {
+                e.preventDefault();
+                sidebarDragging.current = true;
+                document.body.style.cursor = "col-resize";
+                document.body.style.userSelect = "none";
+              }}
+              className="hidden lg:flex items-center justify-center w-2 cursor-col-resize bg-nb-black/5 hover:bg-nb-orange/30 active:bg-nb-orange/50 transition-colors duration-150 shrink-0 group"
+            >
+              <div className="w-[3px] h-8 bg-nb-black/20 group-hover:bg-nb-orange rounded-full" />
+            </div>
+          </>
+        )}
 
         {/* Main content */}
         <main className="flex-1 flex flex-col overflow-hidden min-w-0">
