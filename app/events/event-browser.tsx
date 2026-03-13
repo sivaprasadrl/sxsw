@@ -405,14 +405,6 @@ export function EventBrowser({
                 />
               </div>
 
-              {/* Search */}
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="SEARCH..."
-                className="w-full sm:w-44 md:w-56 bg-nb-white border-[2.5px] border-nb-black shadow-[3px_3px_0px_#000] px-3 py-1.5 font-heading font-black text-xs uppercase placeholder:text-nb-black/30 focus:shadow-[1.5px_1.5px_0px_#000] focus:translate-x-[1.5px] focus:translate-y-[1.5px] focus:outline-none transition-all duration-150 order-last sm:order-none"
-              />
             </div>
 
             {/* Mobile time slider — shown below on small screens */}
@@ -812,7 +804,7 @@ function TimeRangeSlider({
   const isFiltered = value[0] !== min || value[1] !== max;
 
   return (
-    <div className="flex items-center gap-2 bg-nb-bg border-[2.5px] border-nb-black shadow-[3px_3px_0px_#000] px-2 md:px-3 py-1.5 w-full sm:w-auto">
+    <div className="flex items-center gap-3 md:gap-4 bg-nb-bg border-[2.5px] border-nb-black shadow-[3px_3px_0px_#000] px-3 md:px-4 py-1.5 w-full sm:w-auto">
       <span className="font-heading font-black text-[9px] md:text-[10px] uppercase whitespace-nowrap text-nb-black/70">
         {minutesToLabel(value[0])}
       </span>
