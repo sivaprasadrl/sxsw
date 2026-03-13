@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Lexend_Mega, Public_Sans } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const lexendMega = Lexend_Mega({
@@ -28,6 +30,8 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${lexendMega.variable} ${publicSans.variable} antialiased bg-nb-bg text-nb-black`}>
         {children}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
