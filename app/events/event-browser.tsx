@@ -93,6 +93,26 @@ export function EventBrowser({
   const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
+  const [bookmarks, setBookmarks] = useState<Set<string>>(() => {
+    if (typeof window === "undefined") return new Set();
+    try {
+      const saved = localStorage.getItem("sxsw-bookmarks");
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
+
+  const toggleBookmark = useCallback((id: string) => {
+    setBookmarks((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      localStorage.setItem("sxsw-bookmarks", JSON.stringify([...next]));
+      return next;
+    });
+  }, []);
   const [sidebarWidth, setSidebarWidth] = useState(288); // default w-72
   const sidebarDragging = useRef(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -155,6 +175,9 @@ export function EventBrowser({
     let result = events.filter((e) =>
       e.categories.some((c) => selectedCategories.has(c))
     );
+    if (showBookmarksOnly) {
+      result = result.filter((e) => bookmarks.has(e.id));
+    }
     if (filterDate) {
       result = result.filter((e) => e.date === filterDate);
     }
@@ -181,7 +204,7 @@ export function EventBrowser({
       return a.time.localeCompare(b.time);
     });
     return result;
-  }, [events, selectedCategories, filterDate, timeRange, globalMin, globalMax, search]);
+  }, [events, selectedCategories, filterDate, timeRange, globalMin, globalMax, search, showBookmarksOnly, bookmarks]);
 
   // Group by date
   const grouped = useMemo(() => {
@@ -336,6 +359,17 @@ export function EventBrowser({
                 {filtered.length} sessions
               </span>
 
+              <button
+                onClick={() => setShowBookmarksOnly((v) => !v)}
+                className={`font-heading font-black text-xs uppercase px-2 md:px-3 py-1.5 border-[2.5px] border-nb-black transition-all duration-150 cursor-pointer whitespace-nowrap
+                  ${showBookmarksOnly
+                    ? "bg-nb-orange text-nb-white shadow-none translate-x-[3px] translate-y-[3px]"
+                    : "bg-nb-white shadow-[3px_3px_0px_#000] hover:shadow-[1.5px_1.5px_0px_#000] hover:translate-x-[1.5px] hover:translate-y-[1.5px]"
+                  }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 inline-block"><path d="M5 2h14a1 1 0 011 1v19.143a.5.5 0 01-.766.424L12 18.03l-7.234 4.536A.5.5 0 014 22.143V3a1 1 0 011-1z" /></svg> Bookmarks{bookmarks.size > 0 ? ` (${bookmarks.size})` : ""}
+              </button>
+
               <div className="flex-1 min-w-0" />
 
               {/* Date filter */}
@@ -389,6 +423,15 @@ export function EventBrowser({
             </div>
           </div>
 
+          {/* Bookmarks banner */}
+          {showBookmarksOnly && (
+            <div className="shrink-0 bg-nb-yellow border-b-[3px] border-nb-black px-4 md:px-6 py-2">
+              <span className="font-heading font-black text-xs uppercase">
+                Showing bookmarked events
+              </span>
+            </div>
+          )}
+
           {/* Events */}
           <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4">
             {grouped.length === 0 ? (
@@ -412,11 +455,11 @@ export function EventBrowser({
                   {/* Event cards */}
                   <div className="bg-nb-white border-[3px] border-nb-black shadow-[4px_4px_0px_#000] md:shadow-[6px_6px_0px_#000]">
                     {/* Table header — desktop only */}
-                    <div className="hidden lg:grid grid-cols-[24px_180px_1fr_200px] border-b-[3px] border-nb-black bg-nb-black text-nb-white px-4 py-2 font-heading font-black text-[10px] uppercase tracking-wider">
+                    <div className="hidden lg:grid grid-cols-[24px_180px_1fr_auto] border-b-[3px] border-nb-black bg-nb-black text-nb-white px-4 py-2 font-heading font-black text-[10px] uppercase tracking-wider">
                       <span></span>
-                      <span>Time</span>
+                      <span>Time / Location</span>
                       <span>Session</span>
-                      <span>Location</span>
+                      <span></span>
                     </div>
 
                     {dateEvents.map((event, idx) => (
@@ -430,6 +473,8 @@ export function EventBrowser({
                           )
                         }
                         isLast={idx === dateEvents.length - 1}
+                        isBookmarked={bookmarks.has(event.id)}
+                        onToggleBookmark={() => toggleBookmark(event.id)}
                       />
                     ))}
                   </div>
@@ -448,17 +493,21 @@ function EventRow({
   isExpanded,
   onToggle,
   isLast,
+  isBookmarked,
+  onToggleBookmark,
 }: {
   event: SxswEvent;
   isExpanded: boolean;
   onToggle: () => void;
   isLast: boolean;
+  isBookmarked: boolean;
+  onToggleBookmark: () => void;
 }) {
   return (
     <>
       <div
         onClick={onToggle}
-        className={`grid grid-cols-[20px_1fr] lg:grid-cols-[24px_180px_1fr_200px] px-3 md:px-4 py-3 cursor-pointer transition-all duration-150
+        className={`grid grid-cols-[20px_1fr_auto] lg:grid-cols-[24px_180px_1fr_auto] px-3 md:px-4 py-3 cursor-pointer transition-all duration-150
           ${!isLast && !isExpanded ? "border-b-[2px] border-nb-black/15" : ""}
           ${isExpanded ? "bg-nb-yellow/30 border-b-[2px] border-nb-black/30" : "hover:bg-nb-bg/50"}`}
       >
@@ -472,17 +521,30 @@ function EventRow({
           </span>
         </div>
 
-        {/* Time — desktop column */}
-        <div className="hidden lg:flex items-center self-start h-[18px]">
-          <span className="font-heading font-black text-[11px] uppercase text-nb-black/60 whitespace-nowrap">
-            {event.time}
-          </span>
+        {/* Time + location — desktop column */}
+        <div className="hidden lg:block self-start">
+          <div className="flex items-center h-[18px]">
+            <span className="font-heading font-black text-[11px] uppercase text-nb-black/60 whitespace-nowrap">
+              {event.time}
+            </span>
+          </div>
+          {event.location && (
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.locationAddress || event.location)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="font-body text-[10px] text-nb-black/40 hover:text-nb-orange transition-colors duration-150 underline decoration-nb-black/20 hover:decoration-nb-orange inline-flex items-center gap-0.5 mt-0.5"
+            >
+{event.location}
+            </a>
+          )}
         </div>
 
         {/* Title + mobile meta */}
         <div className="min-w-0">
-          {/* Mobile: time + location on top */}
-          <div className="lg:hidden flex flex-wrap gap-x-3 gap-y-0.5 mb-0.5">
+          {/* Mobile: time + location + bookmark on top */}
+          <div className="lg:hidden flex flex-wrap items-center gap-x-3 gap-y-0.5 mb-0.5">
             <span className="font-heading font-black text-[10px] uppercase text-nb-black/50">
               {event.time}
             </span>
@@ -492,9 +554,9 @@ function EventRow({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="font-body text-[10px] text-nb-black/40 truncate hover:text-nb-orange transition-colors duration-150 underline decoration-nb-black/20 hover:decoration-nb-orange"
+                className="font-body text-[10px] text-nb-black/40 truncate hover:text-nb-orange transition-colors duration-150 underline decoration-nb-black/20 hover:decoration-nb-orange inline-flex items-center gap-0.5"
               >
-                {event.location}
+  {event.location}
               </a>
             )}
           </div>
@@ -508,17 +570,20 @@ function EventRow({
           )}
         </div>
 
-        {/* Location — desktop only */}
-        <div className="hidden lg:flex items-start">
-          <a
-            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.locationAddress || event.location)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="font-body text-xs text-nb-black/60 truncate hover:text-nb-orange transition-colors duration-150 underline decoration-nb-black/20 hover:decoration-nb-orange"
+        {/* Bookmark — rightmost column, top-aligned */}
+        <div className="flex items-start justify-center self-start">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleBookmark();
+            }}
+            className={`text-lg leading-none transition-colors duration-150 cursor-pointer ${
+              isBookmarked ? "text-nb-orange" : "text-nb-black/25 hover:text-nb-orange"
+            }`}
+            title={isBookmarked ? "Remove bookmark" : "Bookmark"}
           >
-            {event.location}
-          </a>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 inline-block"><path d="M5 2h14a1 1 0 011 1v19.143a.5.5 0 01-.766.424L12 18.03l-7.234 4.536A.5.5 0 014 22.143V3a1 1 0 011-1z" /></svg>
+</button>
         </div>
       </div>
 
