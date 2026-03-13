@@ -17,6 +17,11 @@ const publicSans = Public_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "http://localhost:3000"
+  ),
   title: "SXSW 2026 Sessions Explorer",
   description:
     "4,000+ SXSW sessions are hard to navigate. Filter by date, time & category, search across all sessions, bookmark your picks, and view venues on a map. A free community tool for SXSW 2026 attendees.",
