@@ -295,7 +295,7 @@ export function EventBrowser({
             <div className="h-6 w-[3px] bg-nb-black/30 hidden sm:block" />
             <Link
               href="/"
-              className="inline-flex items-center justify-center w-8 h-8 bg-nb-black text-nb-white border-[2.5px] border-nb-black shadow-[3px_3px_0px_#FDFD96] hover:shadow-[1.5px_1.5px_0px_#FDFD96] hover:translate-x-[1.5px] hover:translate-y-[1.5px] transition-all duration-150 font-black text-sm"
+              className="inline-flex items-center justify-center font-black text-xl text-nb-black hover:text-nb-white transition-colors duration-150"
             >
               ←
             </Link>
@@ -303,13 +303,16 @@ export function EventBrowser({
               Sessions
             </span>
           </div>
-          {/* Mobile: category toggle button */}
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden font-heading font-black text-xs uppercase px-3 py-1.5 bg-nb-black text-nb-white border-[2.5px] border-nb-black shadow-[3px_3px_0px_#FDFD96] hover:shadow-[1.5px_1.5px_0px_#FDFD96] hover:translate-x-[1.5px] hover:translate-y-[1.5px] transition-all duration-150 cursor-pointer"
-          >
-            Categories ({selectedCategories.size})
-          </button>
+          <div className="flex items-center gap-3">
+            <a href="https://sw3ll.ai" target="_blank" rel="noopener noreferrer" className="font-body text-[10px] text-nb-black/50 hover:text-nb-black transition-colors duration-150 hidden sm:inline">made by sw3ll</a>
+            {/* Mobile: category toggle button */}
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden font-heading font-black text-xs uppercase px-3 py-1.5 bg-nb-black text-nb-white border-[2.5px] border-nb-black shadow-[3px_3px_0px_#FDFD96] hover:shadow-[1.5px_1.5px_0px_#FDFD96] hover:translate-x-[1.5px] hover:translate-y-[1.5px] transition-all duration-150 cursor-pointer"
+            >
+              Categories ({selectedCategories.size})
+            </button>
+          </div>
         </div>
       </header>
 

@@ -243,8 +243,9 @@ export function WelcomePage({
           <span className="font-heading font-black text-sm uppercase">
             SXSW 2026 Sessions Explorer
           </span>
-          <span className="font-body text-sm text-nb-white/50">
-          </span>
+          <a href="https://sw3ll.ai" target="_blank" rel="noopener noreferrer" className="font-body text-xs text-nb-white/60 hover:text-nb-white transition-colors duration-150">
+            made by sw3ll
+          </a>
         </div>
       </footer>
     </div>
