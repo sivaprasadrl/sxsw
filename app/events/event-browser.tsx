@@ -612,21 +612,75 @@ function EventRow({
                   🎫 {event.badge}
                 </span>
               )}
-              <a
-                href={event.source}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="inline-block font-heading font-black text-xs uppercase px-3 py-1.5 bg-nb-black text-nb-white border-[2.5px] border-nb-black shadow-[3px_3px_0px_#FF5733] hover:shadow-[1.5px_1.5px_0px_#FF5733] hover:translate-x-[1.5px] hover:translate-y-[1.5px] transition-all duration-150 shrink-0"
-              >
-                View on SXSW →
-              </a>
+              <div className="flex flex-wrap gap-2 shrink-0">
+                <a
+                  href={buildCalendarUrl(event)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-block font-heading font-black text-xs uppercase px-3 py-1.5 bg-nb-white text-nb-black border-[2.5px] border-nb-black shadow-[3px_3px_0px_#000] hover:shadow-[1.5px_1.5px_0px_#000] hover:translate-x-[1.5px] hover:translate-y-[1.5px] transition-all duration-150"
+                >
+                  Add to Calendar
+                </a>
+                <a
+                  href={event.source}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-block font-heading font-black text-xs uppercase px-3 py-1.5 bg-nb-black text-nb-white border-[2.5px] border-nb-black shadow-[3px_3px_0px_#FF5733] hover:shadow-[1.5px_1.5px_0px_#FF5733] hover:translate-x-[1.5px] hover:translate-y-[1.5px] transition-all duration-150"
+                >
+                  View on SXSW →
+                </a>
+              </div>
             </div>
           </div>
         </div>
       )}
     </>
   );
+}
+
+function buildCalendarUrl(event: SxswEvent): string {
+  // Parse "10:00 AM – 10:45 AM" into start/end Date objects
+  const timeMatch = event.time.match(
+    /(\d{1,2}):(\d{2})\s*(AM|PM)\s*[–-]\s*(\d{1,2}):(\d{2})\s*(AM|PM)/i
+  );
+  const dateParts = event.date.split("-"); // "2026-03-12"
+
+  let startDate: string, endDate: string;
+
+  if (timeMatch && dateParts.length === 3) {
+    const toHour24 = (h: number, period: string) => {
+      if (period.toUpperCase() === "PM" && h !== 12) return h + 12;
+      if (period.toUpperCase() === "AM" && h === 12) return 0;
+      return h;
+    };
+    const sh = toHour24(parseInt(timeMatch[1]), timeMatch[3]);
+    const sm = parseInt(timeMatch[2]);
+    const eh = toHour24(parseInt(timeMatch[4]), timeMatch[6]);
+    const em = parseInt(timeMatch[5]);
+
+    const fmt = (h: number, m: number) =>
+      `${dateParts.join("")}T${h.toString().padStart(2, "0")}${m.toString().padStart(2, "0")}00`;
+
+    startDate = fmt(sh, sm);
+    endDate = fmt(eh, em);
+  } else {
+    // Fallback: all-day event
+    startDate = dateParts.join("");
+    endDate = dateParts.join("");
+  }
+
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: event.title,
+    dates: `${startDate}/${endDate}`,
+    ctz: "America/Chicago",
+    location: event.locationAddress || event.location || "",
+    details: event.description ? event.description.substring(0, 500) : "",
+  });
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
 /* ── Dual-thumb time range slider ── */
