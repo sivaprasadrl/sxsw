@@ -307,9 +307,12 @@ export function EventBrowser({
             <span className="font-heading font-black text-xs uppercase tracking-wider text-nb-black/70 hidden sm:inline">
               Sessions
             </span>
+          </div>
 
-            {/* Search bar */}
-            <div className="relative w-48 md:w-64 ml-3">
+          <div className="flex items-center gap-3 shrink-0">
+            <a href="https://sw3ll.ai" target="_blank" rel="noopener noreferrer" className="font-body text-[10px] text-nb-black/50 hover:text-nb-black transition-colors duration-150 hidden sm:inline">made by sw3ll</a>
+            {/* Search bar — desktop */}
+            <div className="relative w-48 md:w-64 hidden sm:block">
               <input
                 type="text"
                 value={search}
@@ -326,9 +329,6 @@ export function EventBrowser({
                 </button>
               )}
             </div>
-
-          <div className="flex items-center gap-3 shrink-0">
-            <a href="https://sw3ll.ai" target="_blank" rel="noopener noreferrer" className="font-body text-[10px] text-nb-black/50 hover:text-nb-black transition-colors duration-150 hidden sm:inline">made by sw3ll</a>
             {/* Mobile: category toggle button */}
             {!isSearching && (
               <button
@@ -336,6 +336,26 @@ export function EventBrowser({
                 className="lg:hidden font-heading font-black text-xs uppercase px-3 py-1.5 bg-nb-black text-nb-white border-[2.5px] border-nb-black shadow-[3px_3px_0px_#FDFD96] hover:shadow-[1.5px_1.5px_0px_#FDFD96] hover:translate-x-[1.5px] hover:translate-y-[1.5px] transition-all duration-150 cursor-pointer"
               >
                 Categories ({selectedCategories.size})
+              </button>
+            )}
+          </div>
+        </div>
+        {/* Search bar — mobile */}
+        <div className="sm:hidden px-4 pb-3">
+          <div className="relative w-full">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="SEARCH EVENTS..."
+              className="w-full bg-nb-white border-[2.5px] border-nb-black shadow-[3px_3px_0px_#000] px-3 py-1.5 pr-8 font-heading font-black text-xs uppercase placeholder:text-nb-black/30 focus:shadow-[1.5px_1.5px_0px_#000] focus:translate-x-[1.5px] focus:translate-y-[1.5px] focus:outline-none transition-all duration-150"
+            />
+            {isSearching && (
+              <button
+                onClick={() => setSearch("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 font-heading font-black text-xs text-nb-black/40 hover:text-nb-black cursor-pointer"
+              >
+                ✕
               </button>
             )}
           </div>
@@ -385,25 +405,8 @@ export function EventBrowser({
         <main className="flex-1 flex flex-col overflow-hidden min-w-0">
           {/* Toolbar */}
           <div className="shrink-0 border-b-[3px] border-nb-black bg-nb-white px-4 md:px-6 py-3">
-            {/* Row 1: count + filters */}
+            {/* Row 1: date left, time slider center, bookmarks right */}
             <div className="flex flex-wrap items-center gap-2 md:gap-4">
-              <span className="font-heading font-black text-xs bg-nb-black text-nb-white px-2 py-0.5 whitespace-nowrap">
-                {filtered.length} sessions
-              </span>
-
-              <button
-                onClick={() => setShowBookmarksOnly((v) => !v)}
-                className={`font-heading font-black text-xs uppercase px-2 md:px-3 py-1.5 border-[2.5px] border-nb-black transition-all duration-150 cursor-pointer whitespace-nowrap
-                  ${showBookmarksOnly
-                    ? "bg-nb-orange text-nb-white shadow-none translate-x-[3px] translate-y-[3px]"
-                    : "bg-nb-white shadow-[3px_3px_0px_#000] hover:shadow-[1.5px_1.5px_0px_#000] hover:translate-x-[1.5px] hover:translate-y-[1.5px]"
-                  }`}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 inline-block"><path d="M5 2h14a1 1 0 011 1v19.143a.5.5 0 01-.766.424L12 18.03l-7.234 4.536A.5.5 0 014 22.143V3a1 1 0 011-1z" /></svg> Bookmarks{bookmarks.size > 0 ? ` (${bookmarks.size})` : ""}
-              </button>
-
-              <div className="flex-1 min-w-0" />
-
               {/* Date filter */}
               <select
                 value={filterDate}
@@ -434,6 +437,18 @@ export function EventBrowser({
                 />
               </div>
 
+              <div className="flex-1 min-w-0" />
+
+              <button
+                onClick={() => setShowBookmarksOnly((v) => !v)}
+                className={`font-heading font-black text-xs uppercase px-2 md:px-3 py-1.5 border-[2.5px] border-nb-black transition-all duration-150 cursor-pointer whitespace-nowrap
+                  ${showBookmarksOnly
+                    ? "bg-nb-orange text-nb-white shadow-none translate-x-[3px] translate-y-[3px]"
+                    : "bg-nb-white shadow-[3px_3px_0px_#000] hover:shadow-[1.5px_1.5px_0px_#000] hover:translate-x-[1.5px] hover:translate-y-[1.5px]"
+                  }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 inline-block"><path d="M5 2h14a1 1 0 011 1v19.143a.5.5 0 01-.766.424L12 18.03l-7.234 4.536A.5.5 0 014 22.143V3a1 1 0 011-1z" /></svg> Bookmarks{bookmarks.size > 0 ? ` (${bookmarks.size})` : ""}
+              </button>
             </div>
 
             {/* Mobile time slider — shown below on small screens */}
@@ -458,6 +473,11 @@ export function EventBrowser({
 
           {/* Events */}
           <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4">
+            <div className="mb-3">
+              <span className="font-heading font-black text-xs bg-nb-black text-nb-white px-2 py-0.5">
+                {filtered.length} sessions
+              </span>
+            </div>
             {grouped.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <div className="bg-nb-white border-[3px] border-nb-black shadow-[6px_6px_0px_#000] px-8 py-6 text-center">
@@ -833,7 +853,7 @@ function TimeRangeSlider({
   const isFiltered = value[0] !== min || value[1] !== max;
 
   return (
-    <div className="flex items-center gap-3 md:gap-4 bg-nb-bg border-[2.5px] border-nb-black shadow-[3px_3px_0px_#000] px-3 md:px-4 py-1.5 w-full sm:w-auto">
+    <div className="flex items-center gap-4 md:gap-5 bg-nb-bg border-[2.5px] border-nb-black shadow-[3px_3px_0px_#000] px-4 md:px-5 py-1.5 w-full sm:w-auto">
       <span className="font-heading font-black text-[9px] md:text-[10px] uppercase whitespace-nowrap text-nb-black/70">
         {minutesToLabel(value[0])}
       </span>
