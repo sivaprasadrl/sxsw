@@ -37,17 +37,28 @@ export const metadata: Metadata = {
   creator: "sw3ll",
   openGraph: {
     type: "website",
+    url: "https://sxswtechevents.com",
     title: "SXSW 2026 Sessions Explorer",
     description:
       "4,000+ sessions are hard to navigate. We made it easier — filter, search, bookmark, and map your SXSW.",
     siteName: "SXSW 2026 Sessions Explorer",
     locale: "en_US",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "SXSW 2026 Sessions Explorer — Find your perfect sessions across AI, Design, Tech, and more",
+        type: "image/png",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "SXSW 2026 Sessions Explorer",
     description:
       "4,000+ sessions are hard to navigate. We made it easier — filter, search, bookmark, and map your SXSW.",
+    images: ["/opengraph-image"],
   },
   robots: {
     index: true,
