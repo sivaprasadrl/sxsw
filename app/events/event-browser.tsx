@@ -93,16 +93,16 @@ export function EventBrowser({
   const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
-  const [bookmarks, setBookmarks] = useState<Set<string>>(() => {
-    if (typeof window === "undefined") return new Set();
+  const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
     try {
       const saved = localStorage.getItem("sxsw-bookmarks");
-      return saved ? new Set(JSON.parse(saved)) : new Set();
-    } catch {
-      return new Set();
-    }
-  });
+      if (saved) setBookmarks(new Set(JSON.parse(saved)));
+    } catch {}
+  }, []);
 
   const toggleBookmark = useCallback((id: string) => {
     setBookmarks((prev) => {
@@ -286,21 +286,21 @@ export function EventBrowser({
   );
 
   return (
-    <div className="flex flex-col h-screen bg-nb-bg">
+    <div className="flex flex-col h-[100dvh] bg-nb-bg overflow-hidden">
       {/* Header */}
       <header className="shrink-0 border-b-[3.5px] border-nb-black bg-nb-orange">
-        <div className="flex items-center justify-between px-4 md:px-6 py-3 gap-3">
-          <div className="flex items-center gap-3 md:gap-4 shrink-0">
+        <div className="flex items-center justify-between px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4 shrink-0 min-w-0">
             <Link
               href="/"
-              className="font-heading font-black text-xl md:text-2xl text-nb-black uppercase hover:text-nb-white transition-colors duration-150"
+              className="font-heading font-black text-lg sm:text-xl md:text-2xl text-nb-black uppercase hover:text-nb-white transition-colors duration-150 whitespace-nowrap"
             >
               SXSW <span className="text-nb-white">2026</span>
             </Link>
             <div className="h-6 w-[3px] bg-nb-black/30 hidden sm:block" />
             <Link
               href="/"
-              className="inline-flex items-center justify-center font-black text-xl text-nb-black hover:text-nb-white transition-colors duration-150"
+              className="inline-flex items-center justify-center font-black text-lg sm:text-xl text-nb-black hover:text-nb-white transition-colors duration-150"
             >
               ←
             </Link>
@@ -309,7 +309,7 @@ export function EventBrowser({
             </span>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <a href="https://sw3ll.ai" target="_blank" rel="noopener noreferrer" className="font-body text-[10px] text-nb-black/50 hover:text-nb-black transition-colors duration-150 hidden sm:inline">made by sw3ll</a>
             {/* Search bar — desktop */}
             <div className="relative w-48 md:w-64 hidden sm:block">
@@ -341,7 +341,7 @@ export function EventBrowser({
           </div>
         </div>
         {/* Search bar — mobile */}
-        <div className="sm:hidden px-4 pb-3">
+        <div className="sm:hidden px-3 pb-2.5">
           <div className="relative w-full">
             <input
               type="text"
@@ -404,19 +404,19 @@ export function EventBrowser({
         {/* Main content */}
         <main className="flex-1 flex flex-col overflow-hidden min-w-0">
           {/* Toolbar */}
-          <div className="shrink-0 border-b-[3px] border-nb-black bg-nb-white px-4 md:px-6 py-3">
-            {/* Row 1: date left, time slider center, bookmarks right */}
-            <div className="flex flex-wrap items-center gap-2 md:gap-4">
+          <div className="shrink-0 border-b-[3px] border-nb-black bg-nb-white px-3 sm:px-4 md:px-6 py-2.5 sm:py-3">
+            {/* Row 1: date + toggle + bookmarks */}
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
               {/* Date filter */}
               <select
                 value={filterDate}
                 onChange={(e) => setFilterDate(e.target.value)}
-                className="font-heading font-black text-xs uppercase bg-nb-white border-[2.5px] border-nb-black shadow-[3px_3px_0px_#000] px-2 md:px-3 py-1.5 cursor-pointer focus:outline-none appearance-none pr-7"
+                className="font-heading font-black text-[10px] sm:text-xs uppercase bg-nb-white border-[2.5px] border-nb-black shadow-[2px_2px_0px_#000] sm:shadow-[3px_3px_0px_#000] px-2 md:px-3 py-1 sm:py-1.5 cursor-pointer focus:outline-none appearance-none pr-6 sm:pr-7"
                 style={{
                   backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E")`,
                   backgroundRepeat: "no-repeat",
                   backgroundPosition: "right 2px center",
-                  backgroundSize: "18px",
+                  backgroundSize: "16px",
                 }}
               >
                 <option value="">All Dates</option>
@@ -439,15 +439,35 @@ export function EventBrowser({
 
               <div className="flex-1 min-w-0" />
 
+              {/* List/Map toggle */}
+              <div className="flex border-[2px] sm:border-[2.5px] border-nb-black shadow-[2px_2px_0px_#000] sm:shadow-[3px_3px_0px_#000]">
+                <button
+                  onClick={() => setViewMode("list")}
+                  className={`font-heading font-black text-[10px] sm:text-xs uppercase px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 cursor-pointer transition-colors duration-150 ${
+                    viewMode === "list" ? "bg-nb-black text-nb-white" : "bg-nb-white text-nb-black hover:bg-nb-bg"
+                  }`}
+                >
+                  List
+                </button>
+                <button
+                  onClick={() => setViewMode("map")}
+                  className={`font-heading font-black text-[10px] sm:text-xs uppercase px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 cursor-pointer transition-colors duration-150 border-l-[2px] sm:border-l-[2.5px] border-nb-black ${
+                    viewMode === "map" ? "bg-nb-black text-nb-white" : "bg-nb-white text-nb-black hover:bg-nb-bg"
+                  }`}
+                >
+                  Map
+                </button>
+              </div>
+
               <button
                 onClick={() => setShowBookmarksOnly((v) => !v)}
-                className={`font-heading font-black text-xs uppercase px-2 md:px-3 py-1.5 border-[2.5px] border-nb-black transition-all duration-150 cursor-pointer whitespace-nowrap
+                className={`font-heading font-black text-[10px] sm:text-xs uppercase px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 border-[2px] sm:border-[2.5px] border-nb-black transition-all duration-150 cursor-pointer whitespace-nowrap
                   ${showBookmarksOnly
-                    ? "bg-nb-orange text-nb-white shadow-none translate-x-[3px] translate-y-[3px]"
-                    : "bg-nb-white shadow-[3px_3px_0px_#000] hover:shadow-[1.5px_1.5px_0px_#000] hover:translate-x-[1.5px] hover:translate-y-[1.5px]"
+                    ? "bg-nb-orange text-nb-white shadow-none translate-x-[2px] translate-y-[2px] sm:translate-x-[3px] sm:translate-y-[3px]"
+                    : "bg-nb-white shadow-[2px_2px_0px_#000] sm:shadow-[3px_3px_0px_#000] hover:shadow-[1.5px_1.5px_0px_#000] hover:translate-x-[1.5px] hover:translate-y-[1.5px]"
                   }`}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 inline-block"><path d="M5 2h14a1 1 0 011 1v19.143a.5.5 0 01-.766.424L12 18.03l-7.234 4.536A.5.5 0 014 22.143V3a1 1 0 011-1z" /></svg> Bookmarks{bookmarks.size > 0 ? ` (${bookmarks.size})` : ""}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 sm:w-4 sm:h-4 inline-block"><path d="M5 2h14a1 1 0 011 1v19.143a.5.5 0 01-.766.424L12 18.03l-7.234 4.536A.5.5 0 014 22.143V3a1 1 0 011-1z" /></svg><span className="hidden sm:inline"> Bookmarks</span>{bookmarks.size > 0 ? ` (${bookmarks.size})` : ""}
               </button>
             </div>
 
@@ -471,62 +491,267 @@ export function EventBrowser({
             </div>
           )}
 
-          {/* Events */}
-          <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4">
-            <div className="mb-3">
-              <span className="font-heading font-black text-xs bg-nb-black text-nb-white px-2 py-0.5">
-                {filtered.length} sessions
-              </span>
-            </div>
-            {grouped.length === 0 ? (
-              <div className="flex items-center justify-center h-full">
-                <div className="bg-nb-white border-[3px] border-nb-black shadow-[6px_6px_0px_#000] px-8 py-6 text-center">
-                  <span className="font-heading font-black text-lg uppercase">
-                    No Sessions Found
-                  </span>
-                </div>
+          {/* Events — List or Map view */}
+          {viewMode === "list" ? (
+            <div className="flex-1 overflow-y-auto px-2 sm:px-4 md:px-6 py-3 sm:py-4">
+              <div className="mb-2 sm:mb-3">
+                <span className="font-heading font-black text-[10px] sm:text-xs bg-nb-black text-nb-white px-2 py-0.5">
+                  {filtered.length} sessions
+                </span>
               </div>
-            ) : (
-              grouped.map(([date, dateEvents]) => (
-                <div key={date} className="mb-6">
-                  {/* Date header */}
-                  <div className="sticky top-0 z-10 mb-3">
-                    <span className="inline-block font-heading font-black text-sm uppercase bg-nb-black text-nb-white px-4 py-1.5 border-[3px] border-nb-black shadow-[3px_3px_0px_#FF5733]">
-                      {formatDate(date)}
+              {grouped.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="bg-nb-white border-[3px] border-nb-black shadow-[4px_4px_0px_#000] sm:shadow-[6px_6px_0px_#000] px-6 sm:px-8 py-4 sm:py-6 text-center">
+                    <span className="font-heading font-black text-base sm:text-lg uppercase">
+                      No Sessions Found
                     </span>
                   </div>
-
-                  {/* Event cards */}
-                  <div className="bg-nb-white border-[3px] border-nb-black shadow-[4px_4px_0px_#000] md:shadow-[6px_6px_0px_#000]">
-                    {/* Table header — desktop only */}
-                    <div className="hidden lg:grid grid-cols-[24px_180px_1fr_auto] border-b-[3px] border-nb-black bg-nb-black text-nb-white px-4 py-2 font-heading font-black text-[10px] uppercase tracking-wider">
-                      <span></span>
-                      <span>Time / Location</span>
-                      <span>Session</span>
-                      <span></span>
+                </div>
+              ) : (
+                grouped.map(([date, dateEvents]) => (
+                  <div key={date} className="mb-4 sm:mb-6">
+                    {/* Date header */}
+                    <div className="sticky top-0 z-10 mb-2 sm:mb-3">
+                      <span className="inline-block font-heading font-black text-xs sm:text-sm uppercase bg-nb-black text-nb-white px-3 sm:px-4 py-1 sm:py-1.5 border-[2.5px] sm:border-[3px] border-nb-black shadow-[2px_2px_0px_#FF5733] sm:shadow-[3px_3px_0px_#FF5733]">
+                        {formatDate(date)}
+                      </span>
                     </div>
 
-                    {dateEvents.map((event, idx) => (
-                      <EventRow
-                        key={event.id}
-                        event={event}
-                        isExpanded={expandedEvent === event.id}
-                        onToggle={() =>
-                          setExpandedEvent(
-                            expandedEvent === event.id ? null : event.id
-                          )
-                        }
-                        isLast={idx === dateEvents.length - 1}
-                        isBookmarked={bookmarks.has(event.id)}
-                        onToggleBookmark={() => toggleBookmark(event.id)}
-                      />
-                    ))}
+                    {/* Event cards */}
+                    <div className="bg-nb-white border-[2.5px] sm:border-[3px] border-nb-black shadow-[3px_3px_0px_#000] sm:shadow-[4px_4px_0px_#000] md:shadow-[6px_6px_0px_#000]">
+                      {/* Table header — desktop only */}
+                      <div className="hidden lg:grid grid-cols-[24px_180px_1fr_auto] border-b-[3px] border-nb-black bg-nb-black text-nb-white px-4 py-2 font-heading font-black text-[10px] uppercase tracking-wider">
+                        <span></span>
+                        <span>Time / Location</span>
+                        <span>Session</span>
+                        <span></span>
+                      </div>
+
+                      {dateEvents.map((event, idx) => (
+                        <EventRow
+                          key={event.id}
+                          event={event}
+                          isExpanded={expandedEvent === event.id}
+                          onToggle={() =>
+                            setExpandedEvent(
+                              expandedEvent === event.id ? null : event.id
+                            )
+                          }
+                          isLast={idx === dateEvents.length - 1}
+                          isBookmarked={bookmarks.has(event.id)}
+                          onToggleBookmark={() => toggleBookmark(event.id)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          ) : (
+            <MapView
+              events={filtered}
+              expandedEvent={expandedEvent}
+              onToggleExpand={(id) => setExpandedEvent(expandedEvent === id ? null : id)}
+              bookmarks={bookmarks}
+              onToggleBookmark={toggleBookmark}
+            />
+          )}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+function MapView({
+  events,
+  expandedEvent,
+  onToggleExpand,
+  bookmarks,
+  onToggleBookmark,
+}: {
+  events: SxswEvent[];
+  expandedEvent: string | null;
+  onToggleExpand: (id: string) => void;
+  bookmarks: Set<string>;
+  onToggleBookmark: (id: string) => void;
+}) {
+  const [expandedLocation, setExpandedLocation] = useState<string | null>(null);
+
+  // Group events by locationAddress (or location name as fallback)
+  const locationGroups = useMemo(() => {
+    const groups: Record<string, { address: string; locationName: string; events: SxswEvent[] }> = {};
+    for (const event of events) {
+      const key = event.locationAddress || event.location || "TBA";
+      if (!groups[key]) {
+        groups[key] = { address: key, locationName: event.location, events: [] };
+      }
+      groups[key].events.push(event);
+    }
+    return Object.values(groups).sort((a, b) => b.events.length - a.events.length);
+  }, [events]);
+
+  if (events.length === 0) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-8">
+        <p className="font-heading font-black text-sm uppercase text-nb-black/40">
+          No events match your filters
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex-1 overflow-y-auto px-2 sm:px-4 md:px-6 py-3 sm:py-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+        {locationGroups.map((group) => {
+          const isExpanded = expandedLocation === group.address;
+          return (
+            <div
+              key={group.address}
+              className="border-[2.5px] sm:border-[3px] border-nb-black bg-nb-white shadow-[3px_3px_0px_#000] sm:shadow-[4px_4px_0px_#000] overflow-hidden"
+            >
+              {/* Map embed */}
+              <div className="relative">
+                <iframe
+                  src={`https://www.google.com/maps?q=${encodeURIComponent(group.address)}&output=embed`}
+                  width="100%"
+                  className="h-[130px] sm:h-[180px] w-full"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title={`Map: ${group.locationName}`}
+                />
+              </div>
+
+              {/* Location header */}
+              <button
+                onClick={() => setExpandedLocation(isExpanded ? null : group.address)}
+                className="w-full text-left px-2.5 sm:px-3 py-2 sm:py-2.5 border-t-[2.5px] border-nb-black bg-nb-bg hover:bg-nb-yellow/20 transition-colors duration-150 cursor-pointer"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 overflow-hidden">
+                    <span className="font-heading font-black text-[11px] sm:text-xs md:text-sm uppercase block truncate">
+                      {group.locationName}
+                    </span>
+                    <span className="font-body text-[9px] sm:text-[10px] md:text-[11px] text-nb-black/50 block mt-0.5 truncate">
+                      {group.address}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                    <span className="font-heading font-black text-[9px] sm:text-[10px] md:text-xs bg-nb-black text-nb-white px-1.5 sm:px-2 py-0.5">
+                      {group.events.length}
+                    </span>
+                    <span
+                      className={`font-black text-[10px] sm:text-xs transition-transform duration-150 inline-block ${
+                        isExpanded ? "rotate-90" : ""
+                      }`}
+                    >
+                      ▶
+                    </span>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
-        </main>
+              </button>
+
+              {/* Event list */}
+              {isExpanded && (
+                <div className="border-t-[2px] border-nb-black/20">
+                  {group.events.map((event, i) => (
+                    <div
+                      key={event.id}
+                      className={`${i > 0 ? "border-t-[1.5px] border-nb-black/10" : ""}`}
+                    >
+                      <div
+                        onClick={() => onToggleExpand(event.id)}
+                        className={`flex items-start gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 cursor-pointer transition-colors duration-150 ${
+                          expandedEvent === event.id ? "bg-nb-yellow/30" : "hover:bg-nb-bg/50"
+                        }`}
+                      >
+                        <span
+                          className={`font-black text-[8px] sm:text-[9px] mt-1 transition-transform duration-150 inline-block shrink-0 ${
+                            expandedEvent === event.id ? "rotate-90" : ""
+                          }`}
+                        >
+                          ▶
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <span className="font-heading font-black text-[9px] sm:text-[10px] md:text-xs uppercase text-nb-black/50 block">
+                            {event.time} · {formatDate(event.date)}
+                          </span>
+                          <span className="font-heading font-black text-[11px] sm:text-xs uppercase leading-snug block">
+                            {event.title}
+                          </span>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleBookmark(event.id);
+                          }}
+                          className={`text-base leading-none transition-colors duration-150 cursor-pointer shrink-0 ${
+                            bookmarks.has(event.id) ? "text-nb-orange" : "text-nb-black/25 hover:text-nb-orange"
+                          }`}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3 sm:w-3.5 sm:h-3.5 inline-block"><path d="M5 2h14a1 1 0 011 1v19.143a.5.5 0 01-.766.424L12 18.03l-7.234 4.536A.5.5 0 014 22.143V3a1 1 0 011-1z" /></svg>
+                        </button>
+                      </div>
+                      {expandedEvent === event.id && (
+                        <div className="px-2.5 sm:px-3 pb-2.5 sm:pb-3 pt-1 bg-nb-cream">
+                          <div className="ml-2 sm:ml-4 space-y-2">
+                            <div className="flex flex-wrap gap-1.5">
+                              <span className="inline-block font-heading font-black text-[9px] uppercase px-2 py-0.5 bg-nb-white border-[2px] border-nb-black shadow-[2px_2px_0px_#000]">
+                                🕐 {event.time}
+                              </span>
+                              <span className="inline-block font-heading font-black text-[9px] uppercase px-2 py-0.5 bg-nb-white border-[2px] border-nb-black shadow-[2px_2px_0px_#000]">
+                                📅 {formatDate(event.date)}
+                              </span>
+                            </div>
+                            {event.description && (
+                              <p className="font-body text-[11px] md:text-xs text-nb-black/70 leading-relaxed">
+                                {event.description}
+                              </p>
+                            )}
+                            {event.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {event.tags.map((tag) => (
+                                  <span
+                                    key={tag}
+                                    className="font-heading font-black text-[9px] uppercase px-1.5 py-0.5 bg-nb-orange text-nb-white border-[1.5px] border-nb-black"
+                                  >
+                                    {tag}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                            <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                              <a
+                                href={buildCalendarUrl(event)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-block font-heading font-black text-[9px] sm:text-[10px] uppercase px-2 sm:px-2.5 py-1 bg-nb-white text-nb-black border-[2px] border-nb-black shadow-[2px_2px_0px_#000] hover:shadow-[1px_1px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px] transition-all duration-150"
+                              >
+                                Add to Calendar
+                              </a>
+                              <a
+                                href={event.source}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-block font-heading font-black text-[9px] sm:text-[10px] uppercase px-2 sm:px-2.5 py-1 bg-nb-black text-nb-white border-[2px] border-nb-black shadow-[2px_2px_0px_#FF5733] hover:shadow-[1px_1px_0px_#FF5733] hover:translate-x-[1px] hover:translate-y-[1px] transition-all duration-150"
+                              >
+                                View on SXSW →
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
