@@ -17,8 +17,41 @@ const publicSans = Public_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "SXSW 2026 Sessions",
-  description: "Browse SXSW 2026 sessions by category — AI, Design, Tech, and more.",
+  title: "SXSW 2026 Sessions Explorer",
+  description:
+    "4,000+ SXSW sessions are hard to navigate. Filter by date, time & category, search across all sessions, bookmark your picks, and view venues on a map. A free community tool for SXSW 2026 attendees.",
+  keywords: [
+    "SXSW 2026",
+    "SXSW sessions",
+    "SXSW schedule",
+    "SXSW planner",
+    "SXSW Austin",
+    "SXSW events",
+    "AI",
+    "Design",
+    "Tech",
+    "Marketing",
+  ],
+  authors: [{ name: "sw3ll", url: "https://sw3ll.ai" }],
+  creator: "sw3ll",
+  openGraph: {
+    type: "website",
+    title: "SXSW 2026 Sessions Explorer",
+    description:
+      "4,000+ sessions are hard to navigate. We made it easier — filter, search, bookmark, and map your SXSW.",
+    siteName: "SXSW 2026 Sessions Explorer",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SXSW 2026 Sessions Explorer",
+    description:
+      "4,000+ sessions are hard to navigate. We made it easier — filter, search, bookmark, and map your SXSW.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
